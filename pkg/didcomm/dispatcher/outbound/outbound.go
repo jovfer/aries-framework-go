@@ -381,26 +381,58 @@ func (o *Dispatcher) createForwardMessage(msg []byte, des *service.Destination) 
 
 		routingKeys = des.RoutingKeys
 	}
-
-	// create forward message
-	forward := &model.Forward{
-		Type: forwardMsgType,
-		ID:   uuid.New().String(),
-		To:   des.RecipientKeys[0],
-		Msg:  msg,
+	fwdKeys := append([]string{des.RecipientKeys[0]}, routingKeys...)
+	packedMsg, err := o.createPackedNestedForwards(msg, senderKey, fwdKeys, forwardMsgType, mtProfile)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create packed nested forwards: %w", err)
 	}
 
+	return packedMsg, nil
+}
+
+//nolint:funlen
+func (o *Dispatcher) createPackedNestedForwards(msg, senderKey []byte, routingKeys []string, fwdMsgType, mtProfile string) ([]byte, error) {
+	for i, key := range routingKeys {
+		if i+1 >= len(routingKeys) {
+			break
+		}
+		msgEnv := &model.Envelope{}
+		err := json.Unmarshal(msg, msgEnv)
+		if err != nil {
+			return nil, fmt.Errorf("failed unmarshal to Envelope: %w", err)
+		}
+
+		// create forward message
+		forward := model.Forward{
+			Type: fwdMsgType,
+			ID:   uuid.New().String(),
+			To:   key,
+			Msg:  msgEnv,
+		}
+
+		msg, err = o.packForward(forward, []string{routingKeys[i+1]}, senderKey, mtProfile)
+		if err != nil {
+			return nil, fmt.Errorf("failed to pack forward msg: %w", err)
+		}
+	}
+
+	return msg, nil
+}
+
+//nolint:funlen
+func (o *Dispatcher) packForward(fwd model.Forward, toKeys []string, senderKey []byte, mtProfile string) ([]byte, error) {
 	// convert forward message to bytes
-	req, err := json.Marshal(forward)
+	req, err := json.Marshal(fwd)
 	if err != nil {
 		return nil, fmt.Errorf("failed marshal to bytes: %w", err)
 	}
 
-	packedMsg, err := o.packager.PackMessage(&transport.Envelope{
+	var packedMsg []byte
+	packedMsg, err = o.packager.PackMessage(&transport.Envelope{
 		MediaTypeProfile: mtProfile,
 		Message:          req,
 		FromKey:          senderKey,
-		ToKeys:           routingKeys,
+		ToKeys:           toKeys,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to pack forward msg: %w", err)
