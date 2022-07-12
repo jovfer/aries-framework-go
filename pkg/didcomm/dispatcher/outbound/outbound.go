@@ -340,7 +340,6 @@ func (o *Dispatcher) Forward(msg interface{}, des *service.Destination) error {
 	return fmt.Errorf("outboundDispatcher.Forward: no transport found for serviceEndpoint: %s", uri)
 }
 
-//nolint:funlen
 func (o *Dispatcher) createForwardMessage(msg []byte, des *service.Destination) ([]byte, error) {
 	forwardMsgType := service.ForwardMsgType
 
@@ -381,6 +380,7 @@ func (o *Dispatcher) createForwardMessage(msg []byte, des *service.Destination) 
 
 		routingKeys = des.RoutingKeys
 	}
+
 	fwdKeys := append([]string{des.RecipientKeys[0]}, routingKeys...)
 	packedMsg, err := o.createPackedNestedForwards(msg, senderKey, fwdKeys, forwardMsgType, mtProfile)
 	if err != nil {
@@ -390,12 +390,12 @@ func (o *Dispatcher) createForwardMessage(msg []byte, des *service.Destination) 
 	return packedMsg, nil
 }
 
-//nolint:funlen
-func (o *Dispatcher) createPackedNestedForwards(msg, senderKey []byte, routingKeys []string, fwdMsgType, mtProfile string) ([]byte, error) {
+func (o *Dispatcher) createPackedNestedForwards(msg, senderKey []byte, routingKeys []string, fwdMsgType, mtProfile string) ([]byte, error) { //nolint: lll
 	for i, key := range routingKeys {
 		if i+1 >= len(routingKeys) {
 			break
 		}
+
 		msgEnv := &model.Envelope{}
 		err := json.Unmarshal(msg, msgEnv)
 		if err != nil {
@@ -419,8 +419,7 @@ func (o *Dispatcher) createPackedNestedForwards(msg, senderKey []byte, routingKe
 	return msg, nil
 }
 
-//nolint:funlen
-func (o *Dispatcher) packForward(fwd model.Forward, toKeys []string, senderKey []byte, mtProfile string) ([]byte, error) {
+func (o *Dispatcher) packForward(fwd model.Forward, toKeys []string, senderKey []byte, mtProfile string) ([]byte, error) { //nolint: lll
 	// convert forward message to bytes
 	req, err := json.Marshal(fwd)
 	if err != nil {
@@ -434,6 +433,7 @@ func (o *Dispatcher) packForward(fwd model.Forward, toKeys []string, senderKey [
 		FromKey:          senderKey,
 		ToKeys:           toKeys,
 	})
+
 	if err != nil {
 		return nil, fmt.Errorf("failed to pack forward msg: %w", err)
 	}

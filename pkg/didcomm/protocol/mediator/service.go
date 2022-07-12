@@ -555,9 +555,11 @@ func (s *Service) handleForward(msg service.DIDCommMsg) error {
 	if err != nil && s.messagePickupSvc != nil {
 		var message []byte
 		message, err = json.Marshal(forward.Msg)
+
 		if err != nil {
 			return fmt.Errorf("service.handleForward: failed marshal to bytes: %w", err)
 		}
+
 		return s.messagePickupSvc.AddMessage(message, string(theirDID))
 	}
 

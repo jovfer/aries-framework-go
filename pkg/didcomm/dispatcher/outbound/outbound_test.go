@@ -10,10 +10,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/stretchr/testify/mock"
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
 	"github.com/hyperledger/aries-framework-go/pkg/common/model"
@@ -825,6 +825,7 @@ func (m *mockPackager) PackMessage(e *transport.Envelope) ([]byte, error) {
 			return e.Message, nil
 		}
 	}
+
 	return e.Message, nil
 }
 
