@@ -382,6 +382,7 @@ func (o *Dispatcher) createForwardMessage(msg []byte, des *service.Destination) 
 	}
 
 	fwdKeys := append([]string{des.RecipientKeys[0]}, routingKeys...)
+
 	packedMsg, err := o.createPackedNestedForwards(msg, senderKey, fwdKeys, forwardMsgType, mtProfile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create packed nested forwards: %w", err)
@@ -397,6 +398,7 @@ func (o *Dispatcher) createPackedNestedForwards(msg, senderKey []byte, routingKe
 		}
 
 		msgEnv := &model.Envelope{}
+
 		err := json.Unmarshal(msg, msgEnv)
 		if err != nil {
 			return nil, fmt.Errorf("failed unmarshal to Envelope: %w", err)
