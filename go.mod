@@ -31,7 +31,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rs/cors v1.7.0
 	github.com/square/go-jose/v3 v3.0.0-20200630053402-0a67ce9b0693
-	github.com/stretchr/testify v1.8.0
+	github.com/stretchr/testify v1.7.2
 	github.com/teserakt-io/golang-ed25519 v0.0.0-20210104091850-3888c087a4c8
 	github.com/tidwall/gjson v1.6.7
 	github.com/tidwall/sjson v1.1.4
